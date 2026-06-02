@@ -1,59 +1,78 @@
 # InfoPage
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+Freundliche Angular-Infoseite für eine Tagesmutter mit Galerie, Kontaktbereich und
+Vercel-kompatibler Serverless Function für das Kontaktformular.
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Lokal starten
 
 ```bash
-ng generate component component-name
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Die Seite läuft danach unter `http://localhost:4200/`.
+
+## Kontaktformular lokal testen
+
+Das Angular-Formular sendet eine `POST`-Anfrage an `/api/contact`. Dieser Endpunkt liegt als
+Vercel Serverless Function in `api/contact.js`.
+
+Für einen lokalen Ende-zu-Ende-Test mit API-Route:
 
 ```bash
-ng generate --help
+cp .env.example .env.local
+npx vercel dev
 ```
 
-## Building
-
-To build the project run:
+Für Tests ohne echten Mailversand kann in `.env.local` gesetzt werden:
 
 ```bash
-ng build
+CONTACT_DRY_RUN=true
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Dann validiert die Function die Anfrage und antwortet erfolgreich, ohne SMTP zu verwenden.
 
-## Running unit tests
+## Environment Variables
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Es dürfen keine echten Zugangsdaten im Repository gespeichert werden. Die Werte werden später in
+Vercel, Netlify oder lokal in `.env.local` gesetzt.
+
+| Variable | Bedeutung |
+| --- | --- |
+| `SMTP_HOST` | SMTP-Server des Mailanbieters |
+| `SMTP_PORT` | SMTP-Port, z. B. `587` oder `465` |
+| `SMTP_USER` | SMTP-Benutzername |
+| `SMTP_PASS` | SMTP-Passwort oder App-Passwort |
+| `CONTACT_RECEIVER_EMAIL` | Empfängeradresse für Kontaktanfragen |
+| `SMTP_FROM` | Optionaler Absender, falls der Anbieter das verlangt |
+| `CONTACT_DRY_RUN` | Optional `true` für lokalen Test ohne Mailversand |
+
+Die Besucher-E-Mail wird als `replyTo` gesetzt, damit später direkt auf die Anfrage geantwortet
+werden kann.
+
+## Deployment
+
+### Vercel
+
+Die aktuelle Struktur ist für Vercel gedacht:
+
+- Angular-Frontend im Projektroot
+- Kontakt-Endpunkt in `api/contact.js`
+- Formular-Request an `/api/contact`
+
+Beim Deployment müssen die oben genannten Environment Variables im Vercel-Projekt gesetzt werden.
+Die Empfänger-E-Mail wird über `CONTACT_RECEIVER_EMAIL` eingetragen.
+
+### Netlify
+
+Netlify nutzt üblicherweise `netlify/functions` statt `api`. Für Netlify müsste die Function daher
+nach `netlify/functions/contact.js` verschoben oder über eine Netlify-Weiterleitung auf
+`/.netlify/functions/contact` verfügbar gemacht werden. Das Frontend kann weiterhin an
+`/api/contact` senden, wenn eine passende Redirect-Regel eingerichtet ist.
+
+## Checks
 
 ```bash
-ng test
+npm test
+npm run build
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

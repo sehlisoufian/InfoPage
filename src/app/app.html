@@ -174,8 +174,8 @@
         <p class="section-kicker">Kontakt</p>
         <h2 id="contact-title">Lernen wir uns kennen.</h2>
         <p>
-          Hier können Telefonnummer, E-Mail-Adresse und Anschrift ergänzt werden. Das Formular ist
-          als Design vorbereitet und hat noch keine Backend-Funktionalität.
+          Hier können Telefonnummer, E-Mail-Adresse und Anschrift ergänzt werden. Über das Formular
+          können Eltern direkt eine Nachricht senden.
         </p>
 
         <div class="contact-list" aria-label="Kontaktdaten">
@@ -185,20 +185,83 @@
         </div>
       </div>
 
-      <form class="contact-form" aria-label="Kontaktformular ohne Backend-Funktionalität">
-        <label>
-          Name
-          <input type="text" placeholder="Ihr Name" />
+      <form class="contact-form" aria-label="Kontaktformular" (ngSubmit)="submitContactForm()" novalidate>
+        <label for="contact-name">
+          Name <span>optional</span>
+          <input
+            id="contact-name"
+            type="text"
+            name="name"
+            autocomplete="name"
+            placeholder="Ihr Name"
+            [(ngModel)]="contactForm.name"
+            [disabled]="isSendingContactForm"
+          />
         </label>
-        <label>
-          E-Mail
-          <input type="email" placeholder="ihre.email@example.de" />
+
+        <label for="contact-email">
+          E-Mail-Adresse
+          <input
+            id="contact-email"
+            type="email"
+            name="email"
+            autocomplete="email"
+            placeholder="ihre.email@example.de"
+            required
+            [(ngModel)]="contactForm.email"
+            [disabled]="isSendingContactForm"
+            [attr.aria-invalid]="isEmailInvalid()"
+            [attr.aria-describedby]="isEmailInvalid() ? 'contact-email-error' : null"
+          />
+          @if (isEmailInvalid()) {
+            <p class="field-error" id="contact-email-error">
+              Bitte geben Sie eine gültige E-Mail-Adresse ein.
+            </p>
+          }
         </label>
-        <label>
+
+        <label for="contact-message">
           Nachricht
-          <textarea rows="5" placeholder="Hier können Eltern eine kurze Nachricht hinterlassen."></textarea>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="5"
+            maxlength="3000"
+            placeholder="Hier können Eltern eine kurze Nachricht hinterlassen."
+            required
+            [(ngModel)]="contactForm.message"
+            [disabled]="isSendingContactForm"
+            [attr.aria-invalid]="isMessageInvalid()"
+            [attr.aria-describedby]="isMessageInvalid() ? 'contact-message-error contact-message-help' : 'contact-message-help'"
+          ></textarea>
+          <span class="field-hint" id="contact-message-help">
+            {{ remainingMessageCharacters }} Zeichen übrig
+          </span>
+          @if (isMessageInvalid()) {
+            <p class="field-error" id="contact-message-error">
+              Bitte schreiben Sie eine Nachricht mit maximal 3000 Zeichen.
+            </p>
+          }
         </label>
-        <button class="button button-primary" type="button">Nachricht vorbereiten</button>
+
+        <button class="button button-primary" type="submit" [disabled]="isSendingContactForm">
+          @if (isSendingContactForm) {
+            Nachricht wird gesendet...
+          } @else {
+            Nachricht senden
+          }
+        </button>
+
+        @if (contactFeedback) {
+          <p
+            class="form-feedback"
+            [class.form-feedback-success]="contactStatus === 'success'"
+            [class.form-feedback-error]="contactStatus === 'error'"
+            role="status"
+          >
+            {{ contactFeedback }}
+          </p>
+        }
       </form>
     </section>
   </main>
