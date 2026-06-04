@@ -116,7 +116,7 @@ async function sendSmtpMail(payload) {
   const secure = port === 465;
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const fromAddress = extractEmailAddress(from);
-  const receiver = process.env.CONTACT_RECEIVER_EMAIL;
+  const receiver = process.env.CONTACT_RECEIVER_EMAIL || 'miele630@gmail.com';
 
   if (!Number.isInteger(port) || port <= 0) {
     throw new Error('SMTP_PORT must be a valid port number.');
