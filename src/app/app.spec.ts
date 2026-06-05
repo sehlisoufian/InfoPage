@@ -28,6 +28,38 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Geborgen wachsen');
   });
 
+  it('should render placeholder legal pages', () => {
+    const previousPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+    try {
+      window.history.pushState({}, '', '/impressum');
+      const impressumFixture = TestBed.createComponent(App);
+      impressumFixture.detectChanges();
+      const impressum = impressumFixture.nativeElement as HTMLElement;
+      expect(impressum.querySelector('#legal-page-title')?.textContent).toContain('Impressum');
+
+      window.history.pushState({}, '', '/datenschutz');
+      const privacyFixture = TestBed.createComponent(App);
+      privacyFixture.detectChanges();
+      const privacy = privacyFixture.nativeElement as HTMLElement;
+      expect(privacy.querySelector('#legal-page-title')?.textContent).toContain('Datenschutz');
+    } finally {
+      window.history.pushState({}, '', previousPath);
+    }
+  });
+
+  it('should render the Instagram placeholder link in the footer', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const instagramLink = compiled.querySelector<HTMLAnchorElement>(
+      'footer a[href="https://www.instagram.com/instagram_name_hier_eintragen/"]',
+    );
+
+    expect(instagramLink?.textContent).toContain('@instagram_name_hier_eintragen');
+    expect(instagramLink?.target).toBe('_blank');
+  });
+
   it('should show the contact form', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
