@@ -1,6 +1,6 @@
 <div class="page-shell">
   <header class="site-header">
-    <a class="brand" href="#start" aria-label="Zur Startseite">
+    <a class="brand" href="/#start" aria-label="Zur Startseite">
       <span class="brand-mark">TM</span>
       <span>
         Tagesmutter
@@ -9,15 +9,24 @@
     </a>
 
     <nav class="main-nav" aria-label="Hauptnavigation">
-      <a href="#start">Start</a>
-      <a href="#ueber-mich">Über mich</a>
-      <a href="#betreuung">Betreuung</a>
-      <a href="#tagesablauf">Tagesablauf</a>
-      <a href="#galerie">Galerie</a>
-      <a href="#kontakt">Kontakt</a>
+      <a href="/#start">Start</a>
+      <a href="/#ueber-mich">Über mich</a>
+      <a href="/#betreuung">Betreuung</a>
+      <a href="/#tagesablauf">Tagesablauf</a>
+      <a href="/#galerie">Galerie</a>
+      <a href="/#kontakt">Kontakt</a>
     </nav>
   </header>
 
+  @if (activeLegalPage; as legalPage) {
+    <main class="legal-page" aria-labelledby="legal-page-title">
+      <section class="content-section legal-section">
+        <p class="section-kicker">Rechtliches</p>
+        <h1 id="legal-page-title">{{ legalPage.title }}</h1>
+        <p>{{ legalPage.intro }}</p>
+      </section>
+    </main>
+  } @else {
   <main>
     <section class="hero-section" id="start" aria-labelledby="hero-title">
       <div class="hero-content">
@@ -28,8 +37,8 @@
           Betreuung persönlich vorstellt.
         </p>
         <div class="hero-actions">
-          <a class="button button-primary" href="#kontakt">Kontakt aufnehmen</a>
-          <a class="button button-secondary" href="#betreuung">Mehr erfahren</a>
+          <a class="button button-primary" href="/#kontakt">Kontakt aufnehmen</a>
+          <a class="button button-secondary" href="/#betreuung">Mehr erfahren</a>
         </div>
       </div>
 
@@ -66,8 +75,8 @@
           liebevoll begleitet werden.
         </p>
       </div>
-      <div class="portrait-placeholder" aria-label="Bildplatzhalter für die Tagesmutter">
-        <span>Bildplatzhalter</span>
+      <div class="gallery-placeholder has-image" aria-label="Bildplatzhalter für die Tagesmutter">
+        <img src="/images/IMG_5100.jpeg" alt="Logo">
       </div>
     </section>
 
@@ -148,24 +157,18 @@
       </div>
 
       <div class="gallery-grid">
-        <div class="gallery-placeholder has-image">
-          <img src="/images/0C186460-2B56-48A6-86C2-CEEAF2CB683F.jpeg" alt="Einblicke in den Betreuungsalltag">
-        </div>
-        <div class="gallery-placeholder has-image">
-          <img src="/images/IMG_7955.jpeg" alt="Einblicke in den Betreuungsalltag">
-        </div>
-        <div class="gallery-placeholder has-image">
-          <img src="/images/IMG_7952.jpeg" alt="Einblicke in den Betreuungsalltag">
-        </div>
-        <div class="gallery-placeholder has-image">
-          <img src="/images/IMG_7957.jpeg" alt="Einblicke in den Betreuungsalltag">
-        </div>
-        <div class="gallery-placeholder has-image">
-          <img src="/images/IMG_7331.jpeg" alt="Einblicke in den Betreuungsalltag">
-        </div>
-        <div class="gallery-placeholder has-image">
-          <img src="/images/EF2A6470-5F27-481F-9FE4-1384D6CB4EAF.jpeg" alt="Einblicke in den Betreuungsalltag">
-        </div>
+        @for (image of galleryImages; track image.src) {
+          <div class="gallery-placeholder has-image">
+            <button
+              class="gallery-button"
+              type="button"
+              (click)="openImageModal(image)"
+              [attr.aria-label]="'Bild vergroessert anzeigen: ' + image.alt"
+            >
+              <img [src]="image.src" [alt]="image.alt">
+            </button>
+          </div>
+        }
       </div>
     </section>
 
@@ -174,40 +177,138 @@
         <p class="section-kicker">Kontakt</p>
         <h2 id="contact-title">Lernen wir uns kennen.</h2>
         <p>
-          Hier können Telefonnummer, E-Mail-Adresse und Anschrift ergänzt werden. Das Formular ist
-          als Design vorbereitet und hat noch keine Backend-Funktionalität.
+          Hier können Telefonnummer, E-Mail-Adresse und Anschrift ergänzt werden. Über das Formular
+          können Eltern direkt eine Nachricht senden.
         </p>
 
         <div class="contact-list" aria-label="Kontaktdaten">
           <p><strong>Telefon:</strong> Hier Telefonnummer ergänzen</p>
-          <p><strong>E-Mail:</strong> Hier E-Mail-Adresse ergänzen</p>
+          <p><strong>E-Mail:</strong> max.mustermann@gmail.com </p>
           <p><strong>Adresse:</strong> Hier Adresse ergänzen</p>
+
+          <p>
+            <strong>Instagram:</strong>
+            <a
+            href="https://www.instagram.com/privat/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+              @instagram_name
+            </a>
+          </p>
         </div>
       </div>
 
-      <form class="contact-form" aria-label="Kontaktformular ohne Backend-Funktionalität">
-        <label>
-          Name
-          <input type="text" placeholder="Ihr Name" />
+      <form class="contact-form" aria-label="Kontaktformular" (ngSubmit)="submitContactForm()" novalidate>
+        <label for="contact-name">
+          Name <span>optional</span>
+          <input
+            id="contact-name"
+            type="text"
+            name="name"
+            autocomplete="name"
+            placeholder="Ihr Name"
+            [(ngModel)]="contactForm.name"
+            [disabled]="isSendingContactForm"
+          />
         </label>
-        <label>
-          E-Mail
-          <input type="email" placeholder="ihre.email@example.de" />
+
+        <label for="contact-email">
+          E-Mail-Adresse
+          <input
+            id="contact-email"
+            type="email"
+            name="email"
+            autocomplete="email"
+            placeholder="ihre.email@example.de"
+            required
+            [(ngModel)]="contactForm.email"
+            [disabled]="isSendingContactForm"
+            [attr.aria-invalid]="isEmailInvalid()"
+            [attr.aria-describedby]="isEmailInvalid() ? 'contact-email-error' : null"
+          />
+          @if (isEmailInvalid()) {
+            <p class="field-error" id="contact-email-error">
+              Bitte geben Sie eine gültige E-Mail-Adresse ein.
+            </p>
+          }
         </label>
-        <label>
+
+        <label for="contact-message">
           Nachricht
-          <textarea rows="5" placeholder="Hier können Eltern eine kurze Nachricht hinterlassen."></textarea>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="5"
+            maxlength="3000"
+            placeholder="Hier können Eltern eine kurze Nachricht hinterlassen."
+            required
+            [(ngModel)]="contactForm.message"
+            [disabled]="isSendingContactForm"
+            [attr.aria-invalid]="isMessageInvalid()"
+            [attr.aria-describedby]="isMessageInvalid() ? 'contact-message-error contact-message-help' : 'contact-message-help'"
+          ></textarea>
+          <span class="field-hint" id="contact-message-help">
+            {{ remainingMessageCharacters }} Zeichen übrig
+          </span>
+          @if (isMessageInvalid()) {
+            <p class="field-error" id="contact-message-error">
+              Bitte schreiben Sie eine Nachricht mit maximal 3000 Zeichen.
+            </p>
+          }
         </label>
-        <button class="button button-primary" type="button">Nachricht vorbereiten</button>
+
+        <button class="button button-primary" type="submit" [disabled]="isSendingContactForm">
+          @if (isSendingContactForm) {
+            Nachricht wird gesendet...
+          } @else {
+            Nachricht senden
+          }
+        </button>
+
+        @if (contactFeedback) {
+          <p
+            class="form-feedback"
+            [class.form-feedback-success]="contactStatus === 'success'"
+            [class.form-feedback-error]="contactStatus === 'error'"
+            role="status"
+          >
+            {{ contactFeedback }}
+          </p>
+        }
       </form>
     </section>
   </main>
+  }
 
   <footer class="site-footer">
     <p>Tagesmutter Vorname Nachname - liebevolle Kindertagespflege.</p>
     <div>
-      <a href="#start">Impressum</a>
-      <a href="#start">Datenschutz</a>
+      <a href="/impressum">Impressum</a>
+      <a href="/datenschutz">Datenschutz</a>
     </div>
   </footer>
 </div>
+
+@if (selectedGalleryImage) {
+  <div
+    class="image-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Vergroesserte Bildansicht"
+    (click)="closeImageModal()"
+  >
+    <button
+      class="image-modal-close"
+      type="button"
+      aria-label="Bildansicht schliessen"
+      (click)="closeImageModal()"
+    >
+      &times;
+    </button>
+
+    <figure class="image-modal-content" (click)="$event.stopPropagation()">
+      <img [src]="selectedGalleryImage.src" [alt]="selectedGalleryImage.alt">
+    </figure>
+  </div>
+}
